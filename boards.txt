@@ -14053,6 +14053,210 @@ adafruit_metro_esp32s3.menu.ZigbeeMode.zczr=Zigbee ZCZR (coordinator/router)
 adafruit_metro_esp32s3.menu.ZigbeeMode.zczr.build.zigbee_mode=-DZIGBEE_MODE_ZCZR
 adafruit_metro_esp32s3.menu.ZigbeeMode.zczr.build.zigbee_libs=-lesp_zb_api.zczr -lzboss_stack.zczr -lzboss_port.remote
 
+
+##############################################################
+# Motionalyze Miniature Sensor Logger
+
+motionanalyze_miniature_sensor_logger.name=MotionAnalyze Miniature Sensor Logger
+motionanalyze_miniature_sensor_logger.vid.0=0x239A
+motionanalyze_miniature_sensor_logger.pid.0=0x8145
+motionanalyze_miniature_sensor_logger.vid.1=0x239A
+motionanalyze_miniature_sensor_logger.pid.1=0x0145
+motionanalyze_miniature_sensor_logger.vid.2=0x239A
+motionanalyze_miniature_sensor_logger.pid.2=0x8146
+motionanalyze_miniature_sensor_logger.upload_port.0.vid=0x239A
+motionanalyze_miniature_sensor_logger.upload_port.0.pid=0x8145
+motionanalyze_miniature_sensor_logger.upload_port.1.vid=0x239A
+motionanalyze_miniature_sensor_logger.upload_port.1.pid=0x0145
+motionanalyze_miniature_sensor_logger.upload_port.2.vid=0x239A
+motionanalyze_miniature_sensor_logger.upload_port.2.pid=0x8146
+
+motionanalyze_miniature_sensor_logger.bootloader.tool=esptool_py
+motionanalyze_miniature_sensor_logger.bootloader.tool.default=esptool_py
+
+motionanalyze_miniature_sensor_logger.upload.tool=esptool_py
+motionanalyze_miniature_sensor_logger.upload.tool.default=esptool_py
+motionanalyze_miniature_sensor_logger.upload.tool.network=esp_ota
+
+motionanalyze_miniature_sensor_logger.upload.maximum_size=1310720
+motionanalyze_miniature_sensor_logger.upload.maximum_data_size=327680
+motionanalyze_miniature_sensor_logger.upload.flags=
+motionanalyze_miniature_sensor_logger.upload.extra_flags=
+motionanalyze_miniature_sensor_logger.upload.use_1200bps_touch=true
+motionanalyze_miniature_sensor_logger.upload.wait_for_upload_port=true
+
+motionanalyze_miniature_sensor_logger.serial.disableDTR=false
+motionanalyze_miniature_sensor_logger.serial.disableRTS=false
+
+motionanalyze_miniature_sensor_logger.build.tarch=xtensa
+motionanalyze_miniature_sensor_logger.build.bootloader_addr=0x0
+motionanalyze_miniature_sensor_logger.build.target=esp32s3
+motionanalyze_miniature_sensor_logger.build.mcu=esp32s3
+motionanalyze_miniature_sensor_logger.build.core=esp32
+motionanalyze_miniature_sensor_logger.build.variant=motionanalyze_miniature_sensor_logger
+motionanalyze_miniature_sensor_logger.build.board=MOTIONANALYZE_MINIATURE_SENSOR_LOGGER
+
+motionanalyze_miniature_sensor_logger.build.usb_mode=0
+motionanalyze_miniature_sensor_logger.build.cdc_on_boot=1
+motionanalyze_miniature_sensor_logger.build.msc_on_boot=0
+motionanalyze_miniature_sensor_logger.build.dfu_on_boot=0
+motionanalyze_miniature_sensor_logger.build.f_cpu=240000000L
+motionanalyze_miniature_sensor_logger.build.flash_size=16MB
+motionanalyze_miniature_sensor_logger.build.flash_freq=80m
+motionanalyze_miniature_sensor_logger.build.flash_mode=dio
+motionanalyze_miniature_sensor_logger.build.boot=qio
+motionanalyze_miniature_sensor_logger.build.partitions=default
+motionanalyze_miniature_sensor_logger.build.defines=
+motionanalyze_miniature_sensor_logger.build.loop_core=
+motionanalyze_miniature_sensor_logger.build.event_core=
+motionanalyze_miniature_sensor_logger.build.flash_type=qio
+motionanalyze_miniature_sensor_logger.build.psram_type=opi
+motionanalyze_miniature_sensor_logger.build.memory_type={build.flash_type}_{build.psram_type}
+
+motionanalyze_miniature_sensor_logger.menu.LoopCore.1=Core 1
+motionanalyze_miniature_sensor_logger.menu.LoopCore.1.build.loop_core=-DARDUINO_RUNNING_CORE=1
+motionanalyze_miniature_sensor_logger.menu.LoopCore.0=Core 0
+motionanalyze_miniature_sensor_logger.menu.LoopCore.0.build.loop_core=-DARDUINO_RUNNING_CORE=0
+
+motionanalyze_miniature_sensor_logger.menu.EventsCore.1=Core 1
+motionanalyze_miniature_sensor_logger.menu.EventsCore.1.build.event_core=-DARDUINO_EVENT_RUNNING_CORE=1
+motionanalyze_miniature_sensor_logger.menu.EventsCore.0=Core 0
+motionanalyze_miniature_sensor_logger.menu.EventsCore.0.build.event_core=-DARDUINO_EVENT_RUNNING_CORE=0
+
+motionanalyze_miniature_sensor_logger.menu.USBMode.default=USB-OTG (TinyUSB)
+motionanalyze_miniature_sensor_logger.menu.USBMode.default.build.usb_mode=0
+motionanalyze_miniature_sensor_logger.menu.USBMode.hwcdc=Hardware CDC and JTAG
+motionanalyze_miniature_sensor_logger.menu.USBMode.hwcdc.build.usb_mode=1
+
+motionanalyze_miniature_sensor_logger.menu.CDCOnBoot.cdc=Enabled
+motionanalyze_miniature_sensor_logger.menu.CDCOnBoot.cdc.build.cdc_on_boot=1
+motionanalyze_miniature_sensor_logger.menu.CDCOnBoot.default=Disabled
+motionanalyze_miniature_sensor_logger.menu.CDCOnBoot.default.build.cdc_on_boot=0
+
+motionanalyze_miniature_sensor_logger.menu.MSCOnBoot.default=Disabled
+motionanalyze_miniature_sensor_logger.menu.MSCOnBoot.default.build.msc_on_boot=0
+motionanalyze_miniature_sensor_logger.menu.MSCOnBoot.msc=Enabled (Requires USB-OTG Mode)
+motionanalyze_miniature_sensor_logger.menu.MSCOnBoot.msc.build.msc_on_boot=1
+
+motionanalyze_miniature_sensor_logger.menu.DFUOnBoot.default=Disabled
+motionanalyze_miniature_sensor_logger.menu.DFUOnBoot.default.build.dfu_on_boot=0
+motionanalyze_miniature_sensor_logger.menu.DFUOnBoot.dfu=Enabled (Requires USB-OTG Mode)
+motionanalyze_miniature_sensor_logger.menu.DFUOnBoot.dfu.build.dfu_on_boot=1
+
+motionanalyze_miniature_sensor_logger.menu.UploadMode.cdc=USB-OTG CDC (TinyUSB)
+motionanalyze_miniature_sensor_logger.menu.UploadMode.cdc.upload.use_1200bps_touch=true
+motionanalyze_miniature_sensor_logger.menu.UploadMode.cdc.upload.wait_for_upload_port=true
+motionanalyze_miniature_sensor_logger.menu.UploadMode.default=UART0 / Hardware CDC
+motionanalyze_miniature_sensor_logger.menu.UploadMode.default.upload.use_1200bps_touch=false
+motionanalyze_miniature_sensor_logger.menu.UploadMode.default.upload.wait_for_upload_port=false
+
+motionanalyze_miniature_sensor_logger.menu.PSRAM.opi=OPI PSRAM
+motionanalyze_miniature_sensor_logger.menu.PSRAM.opi.build.defines=-DBOARD_HAS_PSRAM
+motionanalyze_miniature_sensor_logger.menu.PSRAM.opi.build.psram_type=opi
+motionanalyze_miniature_sensor_logger.menu.PSRAM.disabled=Disabled
+motionanalyze_miniature_sensor_logger.menu.PSRAM.disabled.build.defines=
+motionanalyze_miniature_sensor_logger.menu.PSRAM.disabled.build.psram_type=opi
+
+motionanalyze_miniature_sensor_logger.menu.PartitionScheme.tinyuf2=TinyUF2 16MB (2MB APP/11.6MB FATFS)
+motionanalyze_miniature_sensor_logger.menu.PartitionScheme.tinyuf2.build.custom_bootloader=bootloader-tinyuf2
+motionanalyze_miniature_sensor_logger.menu.PartitionScheme.tinyuf2.build.partitions=tinyuf2-partitions-16MB
+motionanalyze_miniature_sensor_logger.menu.PartitionScheme.tinyuf2.upload.maximum_size=2097152
+motionanalyze_miniature_sensor_logger.menu.PartitionScheme.tinyuf2.upload.extra_flags=0x410000 "{runtime.platform.path}/variants/{build.variant}/tinyuf2.bin"
+motionanalyze_miniature_sensor_logger.menu.PartitionScheme.tinyuf2_noota=TinyUF2 16MB No OTA(4MB APP/11.6MB FATFS)
+motionanalyze_miniature_sensor_logger.menu.PartitionScheme.tinyuf2_noota.build.custom_bootloader=bootloader-tinyuf2
+motionanalyze_miniature_sensor_logger.menu.PartitionScheme.tinyuf2_noota.build.partitions=tinyuf2-partitions-16MB-noota
+motionanalyze_miniature_sensor_logger.menu.PartitionScheme.tinyuf2_noota.upload.maximum_size=4194304
+motionanalyze_miniature_sensor_logger.menu.PartitionScheme.tinyuf2_noota.upload.extra_flags=0x410000 "{runtime.platform.path}/variants/{build.variant}/tinyuf2.bin"
+motionanalyze_miniature_sensor_logger.menu.PartitionScheme.default_16MB=Default (6.25MB APP/3.43MB SPIFFS)
+motionanalyze_miniature_sensor_logger.menu.PartitionScheme.default_16MB.build.partitions=default_16MB
+motionanalyze_miniature_sensor_logger.menu.PartitionScheme.default_16MB.upload.maximum_size=6553600
+motionanalyze_miniature_sensor_logger.menu.PartitionScheme.large_spiffs=Large SPIFFS (4.5MB APP/6.93MB SPIFFS)
+motionanalyze_miniature_sensor_logger.menu.PartitionScheme.large_spiffs.build.partitions=large_spiffs_16MB
+motionanalyze_miniature_sensor_logger.menu.PartitionScheme.large_spiffs.upload.maximum_size=4718592
+motionanalyze_miniature_sensor_logger.menu.PartitionScheme.app3M_fat9M_16MB=16M Flash (3MB APP/9MB FATFS)
+motionanalyze_miniature_sensor_logger.menu.PartitionScheme.app3M_fat9M_16MB.build.partitions=app3M_fat9M_16MB
+motionanalyze_miniature_sensor_logger.menu.PartitionScheme.app3M_fat9M_16MB.upload.maximum_size=3145728
+motionanalyze_miniature_sensor_logger.menu.PartitionScheme.fatflash=16M Flash (2MB APP/12.5MB FAT)
+motionanalyze_miniature_sensor_logger.menu.PartitionScheme.fatflash.build.partitions=ffat
+motionanalyze_miniature_sensor_logger.menu.PartitionScheme.fatflash.upload.maximum_size=2097152
+
+motionanalyze_miniature_sensor_logger.menu.CPUFreq.240=240MHz (WiFi)
+motionanalyze_miniature_sensor_logger.menu.CPUFreq.240.build.f_cpu=240000000L
+motionanalyze_miniature_sensor_logger.menu.CPUFreq.160=160MHz (WiFi)
+motionanalyze_miniature_sensor_logger.menu.CPUFreq.160.build.f_cpu=160000000L
+motionanalyze_miniature_sensor_logger.menu.CPUFreq.80=80MHz (WiFi)
+motionanalyze_miniature_sensor_logger.menu.CPUFreq.80.build.f_cpu=80000000L
+motionanalyze_miniature_sensor_logger.menu.CPUFreq.40=40MHz
+motionanalyze_miniature_sensor_logger.menu.CPUFreq.40.build.f_cpu=40000000L
+motionanalyze_miniature_sensor_logger.menu.CPUFreq.20=20MHz
+motionanalyze_miniature_sensor_logger.menu.CPUFreq.20.build.f_cpu=20000000L
+motionanalyze_miniature_sensor_logger.menu.CPUFreq.10=10MHz
+motionanalyze_miniature_sensor_logger.menu.CPUFreq.10.build.f_cpu=10000000L
+
+motionanalyze_miniature_sensor_logger.menu.FlashMode.qio=QIO 80MHz
+motionanalyze_miniature_sensor_logger.menu.FlashMode.qio.build.flash_mode=dio
+motionanalyze_miniature_sensor_logger.menu.FlashMode.qio.build.boot=qio
+motionanalyze_miniature_sensor_logger.menu.FlashMode.qio.build.boot_freq=80m
+motionanalyze_miniature_sensor_logger.menu.FlashMode.qio.build.flash_freq=80m
+motionanalyze_miniature_sensor_logger.menu.FlashMode.qio120=QIO 120MHz
+motionanalyze_miniature_sensor_logger.menu.FlashMode.qio120.build.flash_mode=dio
+motionanalyze_miniature_sensor_logger.menu.FlashMode.qio120.build.boot=qio
+motionanalyze_miniature_sensor_logger.menu.FlashMode.qio120.build.boot_freq=120m
+motionanalyze_miniature_sensor_logger.menu.FlashMode.qio120.build.flash_freq=80m
+motionanalyze_miniature_sensor_logger.menu.FlashMode.dio=DIO 80MHz
+motionanalyze_miniature_sensor_logger.menu.FlashMode.dio.build.flash_mode=dio
+motionanalyze_miniature_sensor_logger.menu.FlashMode.dio.build.boot=dio
+motionanalyze_miniature_sensor_logger.menu.FlashMode.dio.build.boot_freq=80m
+motionanalyze_miniature_sensor_logger.menu.FlashMode.dio.build.flash_freq=80m
+motionanalyze_miniature_sensor_logger.menu.FlashMode.opi=OPI 80MHz
+motionanalyze_miniature_sensor_logger.menu.FlashMode.opi.build.flash_mode=dout
+motionanalyze_miniature_sensor_logger.menu.FlashMode.opi.build.boot=opi
+motionanalyze_miniature_sensor_logger.menu.FlashMode.opi.build.boot_freq=80m
+motionanalyze_miniature_sensor_logger.menu.FlashMode.opi.build.flash_freq=80m
+
+motionanalyze_miniature_sensor_logger.menu.FlashSize.16M=16MB (128Mb)
+motionanalyze_miniature_sensor_logger.menu.FlashSize.16M.build.flash_size=16MB
+
+motionanalyze_miniature_sensor_logger.menu.UploadSpeed.921600=921600
+motionanalyze_miniature_sensor_logger.menu.UploadSpeed.921600.upload.speed=921600
+motionanalyze_miniature_sensor_logger.menu.UploadSpeed.115200=115200
+motionanalyze_miniature_sensor_logger.menu.UploadSpeed.115200.upload.speed=115200
+motionanalyze_miniature_sensor_logger.menu.UploadSpeed.256000.windows=256000
+motionanalyze_miniature_sensor_logger.menu.UploadSpeed.256000.upload.speed=256000
+motionanalyze_miniature_sensor_logger.menu.UploadSpeed.230400.windows.upload.speed=256000
+motionanalyze_miniature_sensor_logger.menu.UploadSpeed.230400=230400
+motionanalyze_miniature_sensor_logger.menu.UploadSpeed.230400.upload.speed=230400
+motionanalyze_miniature_sensor_logger.menu.UploadSpeed.460800.linux=460800
+motionanalyze_miniature_sensor_logger.menu.UploadSpeed.460800.macosx=460800
+motionanalyze_miniature_sensor_logger.menu.UploadSpeed.460800.upload.speed=460800
+motionanalyze_miniature_sensor_logger.menu.UploadSpeed.512000.windows=512000
+motionanalyze_miniature_sensor_logger.menu.UploadSpeed.512000.upload.speed=512000
+
+motionanalyze_miniature_sensor_logger.menu.DebugLevel.none=None
+motionanalyze_miniature_sensor_logger.menu.DebugLevel.none.build.code_debug=0
+motionanalyze_miniature_sensor_logger.menu.DebugLevel.error=Error
+motionanalyze_miniature_sensor_logger.menu.DebugLevel.error.build.code_debug=1
+motionanalyze_miniature_sensor_logger.menu.DebugLevel.warn=Warn
+motionanalyze_miniature_sensor_logger.menu.DebugLevel.warn.build.code_debug=2
+motionanalyze_miniature_sensor_logger.menu.DebugLevel.info=Info
+motionanalyze_miniature_sensor_logger.menu.DebugLevel.info.build.code_debug=3
+motionanalyze_miniature_sensor_logger.menu.DebugLevel.debug=Debug
+motionanalyze_miniature_sensor_logger.menu.DebugLevel.debug.build.code_debug=4
+motionanalyze_miniature_sensor_logger.menu.DebugLevel.verbose=Verbose
+motionanalyze_miniature_sensor_logger.menu.DebugLevel.verbose.build.code_debug=5
+
+motionanalyze_miniature_sensor_logger.menu.EraseFlash.none=Disabled
+motionanalyze_miniature_sensor_logger.menu.EraseFlash.none.upload.erase_cmd=
+motionanalyze_miniature_sensor_logger.menu.EraseFlash.all=Enabled
+motionanalyze_miniature_sensor_logger.menu.EraseFlash.all.upload.erase_cmd=-e
+
+motionanalyze_miniature_sensor_logger.menu.ZigbeeMode.default=Disabled
+motionanalyze_miniature_sensor_logger.menu.ZigbeeMode.default.build.zigbee_mode=
+motionanalyze_miniature_sensor_logger.menu.ZigbeeMode.default.build.zigbee_libs=
+motionanalyze_miniature_sensor_logger.menu.ZigbeeMode.zczr=Zigbee ZCZR (coordinator/router)
+motionanalyze_miniature_sensor_logger.menu.ZigbeeMode.zczr.build.zigbee_mode=-DZIGBEE_MODE_ZCZR
+motionanalyze_miniature_sensor_logger.menu.ZigbeeMode.zczr.build.zigbee_libs=-lesp_zb_api.zczr -lzboss_stack.zczr -lzboss_port.remote
+
 ##############################################################
 # Adafruit MagTag 2.9"
 
