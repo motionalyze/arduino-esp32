@@ -1,40 +1,50 @@
 name: Publish and clean test results
 
 on:
+  # Triggered after the "Wokwi tests" workflow completes
   workflow_run:
     workflows: ["Wokwi tests"]
     types:
       - completed
 
-# No permissions by default
+# Default minimal permissions (job overrides below)
 permissions: { contents: read }
 
 jobs:
   unit-test-results:
     name: Unit Test Results
+    # Run only if the upstream workflow concluded with one of these outcomes
     if: |
       github.event.workflow_run.conclusion == 'success' ||
       github.event.workflow_run.conclusion == 'failure' ||
       github.event.workflow_run.conclusion == 'timed_out'
     runs-on: ubuntu-latest
+
+    # Job-level permissions required by this workflow
     permissions:
-      actions: write
-      statuses: write
-      checks: write
-      pull-requests: write
-      contents: write
+      actions: write          # needed for cache listing/deletion API
+      statuses: write         # needed for commit status API (createCommitStatus)
+      checks: write           # used by the publish-unit-test-result action
+      pull-requests: write    # for PR comments if enabled by the action
+      contents: write         # pushes to gh-pages for badges/report
+
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      # Check out the gh-pages branch to write reports/badges there
+      - name: Checkout gh-pages
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: gh-pages
 
+      # Download artifacts from the triggering workflow_run (Wokwi tests)
       - name: Download and Extract Artifacts
         uses: dawidd6/action-download-artifact@07ab29fd4a977ae4d2b275087cf67563dfdf0295 # v9
         with:
           run_id: ${{ github.event.workflow_run.id }}
           path: ./artifacts
 
+      # Read and sanitize metadata exported by the upstream workflow
       - name: Get original info
+        shell: bash
         run: |
           original_event=$(cat ./artifacts/parent-artifacts/event.txt)
           original_action=$(cat ./artifacts/parent-artifacts/action.txt)
@@ -43,24 +53,24 @@ jobs:
           original_conclusion=$(cat ./artifacts/parent-artifacts/conclusion.txt)
           original_run_id=$(cat ./artifacts/parent-artifacts/run_id.txt)
 
-          # Sanitize the values to avoid security issues
+          # Sanitize values to avoid injection issues
 
-          # Event: Allow alphabetical characters and underscores
+          # Event: letters and underscore
           original_event=$(echo "$original_event" | tr -cd '[:alpha:]_')
 
-          # Action: Allow alphabetical characters and underscores
+          # Action: letters and underscore
           original_action=$(echo "$original_action" | tr -cd '[:alpha:]_')
 
-          # SHA: Allow alphanumeric characters
+          # SHA: alphanumeric
           original_sha=$(echo "$original_sha" | tr -cd '[:alnum:]')
 
-          # Ref: Allow alphanumeric characters, slashes, underscores, dots, and dashes
+          # Ref: alphanumeric, slash, underscore, dot, dash
           original_ref=$(echo "$original_ref" | tr -cd '[:alnum:]/_.-')
 
-          # Conclusion: Allow alphabetical characters and underscores
+          # Conclusion: letters and underscore
           original_conclusion=$(echo "$original_conclusion" | tr -cd '[:alpha:]_')
 
-          # Run ID: Allow numeric characters
+          # Run ID: digits
           original_run_id=$(echo "$original_run_id" | tr -cd '[:digit:]')
 
           echo "original_event=$original_event" >> $GITHUB_ENV
@@ -77,11 +87,14 @@ jobs:
           echo "original_conclusion = $original_conclusion"
           echo "original_run_id = $original_run_id"
 
+      # Convenience: print links to the involved runs
       - name: Print links to other runs
+        shell: bash
         run: |
           echo "Build, Hardware and QEMU tests: https://github.com/${{ github.repository }}/actions/runs/${{ env.original_run_id }}"
           echo "Wokwi tests: https://github.com/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}"
 
+      # Publish JUnit XML results; target the original commit SHA
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@170bf24d20d201b842d7a52403b73ed297e6645b # v2.18.0
         with:
@@ -94,19 +107,21 @@ jobs:
           json_file: ./unity_results.json
           json_suite_details: true
 
+      # Upload the JSON summary for downstream uses
       - name: Upload JSON
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: ${{ always() }}
         with:
           name: unity_results
           overwrite: true
-          path: |
-            ./unity_results.json
+          path: ./unity_results.json
 
+      # Explicitly fail this job if upstream tests failed or timed out
       - name: Fail if tests failed
         if: ${{ env.original_conclusion == 'failure' || env.original_conclusion == 'timed_out' || github.event.workflow_run.conclusion == 'failure' || github.event.workflow_run.conclusion == 'timed_out' }}
         run: exit 1
 
+      # Clean up CI caches associated with the ref when PRs are closed or for non-PR events
       - name: Clean up caches
         if: always()
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
@@ -120,48 +135,77 @@ jobs:
               return;
             }
 
-            await github.paginate(github.rest.actions.getActionsCacheList, {
+            const caches = await github.paginate(github.rest.actions.getActionsCacheList, {
               owner: context.repo.owner,
               repo: context.repo.repo,
               per_page: 100,
               key: key_prefix
-            }).then(caches => {
-              if (caches) {
-                for (const cache of caches) {
-                  console.log(`Deleting cache: ${cache.key}`);
-                  github.rest.actions.deleteActionsCacheById({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    cache_id: cache.id
-                  });
-                }
-              }
             });
 
+            if (caches && caches.length) {
+              for (const cache of caches) {
+                console.log(`Deleting cache: ${cache.key}`);
+                await github.rest.actions.deleteActionsCacheById({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  cache_id: cache.id
+                });
+              }
+            } else {
+              console.log('No caches matched the key prefix.');
+            }
+
+      # POST a commit status to the *correct* repository and SHA to summarize this job
+      # This fixes 404s caused by missing SHA -> /statuses/ (no {sha}) when using workflow_run
       - name: Report conclusion
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         if: always()
         with:
           script: |
-            const owner = '${{ github.repository_owner }}';
-            const repo = '${{ github.repository }}'.split('/')[1];
-            const sha = process.env.original_sha;
-            core.debug(`owner: ${owner}`);
-            core.debug(`repo: ${repo}`);
-            core.debug(`sha: ${sha}`);
-            const { context: name, state } = (await github.rest.repos.createCommitStatus({
-              context: `Runtime Tests / Report results (${process.env.original_event} -> workflow_run -> workflow_run)`,
-              owner: owner,
-              repo: repo,
-              sha: sha,
-              state: '${{ job.status }}',
-              description: '${{ job.status }}' == 'success' ? 'Runtime tests successful' : 'Runtime tests failed',
-              target_url: 'https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}'
-            })).data;
-            core.info(`${name} is ${state}`);
+            const core = require('@actions/core');
+            const wr = context.payload.workflow_run || {};
 
+            // Extract repo and SHA from the workflow_run event (source of the trigger)
+            const ownerFromWR = wr?.head_repository?.owner?.login;
+            const repoFromWR  = wr?.head_repository?.name;
+            const shaFromWR   = wr?.head_sha;
+
+            // Prefer artifact-provided SHA if present; otherwise fall back to workflow_run head_sha
+            const shaFromArtifacts = process.env.original_sha && process.env.original_sha.length ? process.env.original_sha : null;
+
+            const owner = ownerFromWR || context.repo.owner;
+            const repo  = repoFromWR  || context.repo.repo;
+            const sha   = shaFromArtifacts || shaFromWR || context.sha;
+
+            if (!sha) {
+              core.warning('No SHA found (artifacts/head_sha missing) — skipping createCommitStatus');
+              return;
+            }
+
+            const jobStatus = '${{ job.status }}'; // 'success' | 'failure' | 'cancelled'
+            const state = jobStatus === 'success' ? 'success'
+                        : jobStatus === 'failure' ? 'failure'
+                        : 'error'; // treat cancelled as "error" for visibility
+
+            const contextName = `Runtime Tests / Report results (${process.env.original_event || 'unknown'} -> workflow_run)`;
+            const targetUrl   = `https://github.com/${owner}/${repo}/actions/runs/${process.env.GITHUB_RUN_ID}`;
+            const description = state === 'success' ? 'Runtime tests successful' : 'Runtime tests failed';
+
+            core.info(`Setting commit status on ${owner}/${repo}@${sha} -> ${state}`);
+            const res = await github.rest.repos.createCommitStatus({
+              owner,
+              repo,
+              sha,
+              state,
+              context: contextName,
+              description,
+              target_url: targetUrl
+            });
+            core.info(`${res.data.context} is ${res.data.state}`);
+
+      # Create a simple markdown report and badge for scheduled/manual runs
       - name: Generate report
-        if: ${{ !cancelled() && (env.original_event == 'schedule' || env.original_event == 'workflow_dispatch') }} # codespell:ignore cancelled
+        if: ${{ !cancelled() && (env.original_event == 'schedule' || env.original_event == 'workflow_dispatch') }}
         env:
           REPORT_FILE: ./runtime-tests-results/RUNTIME_TESTS_REPORT.md
           WOKWI_RUN_ID: ${{ github.event.workflow_run.id }}
@@ -170,11 +214,12 @@ jobs:
         run: |
           rm -rf artifacts $REPORT_FILE
           mv -f ./unity_results.json ./runtime-tests-results/unity_results.json
-          touch $REPORT_FILE
+          mkdir -p runtime-tests-results
+          : > $REPORT_FILE
           python3 ./runtime-tests-results/table_generator.py ./runtime-tests-results/unity_results.json >> $REPORT_FILE
 
       - name: Generate badge
-        if: ${{ !cancelled() && (env.original_event == 'schedule' || env.original_event == 'workflow_dispatch') }} # codespell:ignore cancelled
+        if: ${{ !cancelled() && (env.original_event == 'schedule' || env.original_event == 'workflow_dispatch') }}
         uses: jaywcjlove/generated-badges@0e078ae4d4bab3777ea4f137de496ab44688f5ad # v1.0.13
         with:
           label: Runtime Tests
@@ -183,13 +228,17 @@ jobs:
           color: ${{ job.status == 'success' && 'green' || 'red' }}
           style: flat
 
+      # Push updated report/badge back to gh-pages
       - name: Push badge
-        if: ${{ !cancelled() && (env.original_event == 'schedule' || env.original_event == 'workflow_dispatch') }} # codespell:ignore cancelled
+        if: ${{ !cancelled() && (env.original_event == 'schedule' || env.original_event == 'workflow_dispatch') }}
+        shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if [[ `git status --porcelain` ]]; then
+          if [[ -n "$(git status --porcelain)" ]]; then
             git add --all
             git commit -m "Updated runtime tests report"
             git push origin HEAD:gh-pages
+          else
+            echo "Nothing to commit."
           fi
